@@ -3,7 +3,7 @@ CC      = /usr/bin/gcc
 CFLAGS  = -Wall -std=c99 -g -D_REENTRANT -DVERSION=\"$(VERSION)\"
 LDFLAGS = -lm 
 
-BIN = clci
+BIN = iclc
 OBJ = ast.o parser.o lexer.o main.o
 
 .PHONY: clean
