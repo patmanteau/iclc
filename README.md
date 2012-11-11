@@ -9,7 +9,7 @@ your dog.
 iclc is written in plain C99 and should compile on most systems with only minor
 adjustments. C99 support is required, though. 
 
-Copyright 2012 Patrick Haas (@patmanteau)
+Copyright 2012 Patrick Haas (@p7haas)
 
 Released under the MIT and GPL licenses.
 

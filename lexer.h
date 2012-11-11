@@ -10,7 +10,7 @@
  * than Starship Troopers.
  *
  *
- * Copyright 2012 Patrick Haas (@patmanteau)
+ * Copyright 2012 Patrick Haas (@p7haas)
  *
  * Released under the MIT and GPL licenses.
  *
