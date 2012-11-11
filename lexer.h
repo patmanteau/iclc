@@ -16,7 +16,6 @@
  *
  * ------------------------------------------------
  *  author:  Patrick Haas
- *  version: 1.0.1
  *  url:     https://github.com/p7haas/iclc
  *  source:  https://github.com/p7haas/iclc
  */                                                   
