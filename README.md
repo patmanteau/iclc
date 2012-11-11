@@ -20,6 +20,8 @@ iclc understands basic arithmetic on floating-point numbers. Supported operators
 
 +, -, *, /, %, ^
 
+( and ) are fine, too. Usually, they even behave as expected!
+
 iclc runs until tired or until you quit by entering \quit or your favorite flavor of EOF.
 
 That's all.
