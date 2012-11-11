@@ -25,6 +25,30 @@
 
 #include "parser.h"
 
+//////////////////////////////////////////////////////////////////////
+//
+// Helferfunktionen
+//
+//////////////////////////////////////////////////////////////////////
+
+
+// Entfernt Whitespace (s. isspace) von Anfang und Ende
+// von s.
+char* strim(char * s) {
+    char * p = s;
+    size_t l = strlen(p);
+
+    // Hinten Whitespace mit Nullen ersetzen
+    while(isspace(p[l - 1])) p[--l] = 0;
+    // Vorne den Pointer zum ersten Nicht-Whitespace bewegen
+    while(* p && isspace(* p)) ++p, --l;
+
+    // Teilstring an den Stringbeginn verschieben
+    memmove(s, p, l + 1);
+
+    return s;
+}
+
 // Wieviele Zeichen darf die Eingabezeile maximal enthalten?
 // size_t dient der Portabilität (und ist ein vorzeichenloser
 // Ganzzahltyp)
@@ -53,6 +77,7 @@ int main(const int argc, const char **argv) {
         // abbildbar ;) ), dient aber hier der Klarheit, da einige
         // if entfallen können
         if (!fgets(user_input, USER_INPUT_BUFFER_SIZE, stdin)) break;
+        strim(user_input);
 
         //////////////////////
         // eval
@@ -60,7 +85,6 @@ int main(const int argc, const char **argv) {
         
         // Abbruch durch User?
         if (strcmp(user_input, "\\quit") == 0) break;
-
 
         // 1. Parsen
         parse_context *ctx = start_parse(user_input);
