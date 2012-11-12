@@ -26,20 +26,28 @@
 #include "lexer.h"
 #include "ast.h"
 
+struct _PARSE_ERROR {
+    int position;
+    char *message;
+
+    struct _PARSE_ERROR *_next;
+};
+
 // Parserkontext
 struct _PARSE_CONTEXT {
     ast_node *ast_root;
     lex_context *lex_ctx;
     int token;
+    struct _PARSE_ERROR *error;
 };
 
+typedef struct _PARSE_ERROR parse_error;
 typedef struct _PARSE_CONTEXT parse_context;
 
 parse_context *start_parse(const char *input);
 void end_parse(parse_context *ctx);
 
-void parse(parse_context *ctx);
-
+int parse(parse_context *ctx);
 
 ast_node *parse_expr(parse_context *ctx);
 ast_node *parse_primary(parse_context *ctx);

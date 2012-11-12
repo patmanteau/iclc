@@ -20,6 +20,10 @@ iclc understands basic arithmetic on (signed) floating-point numbers. Supported 
 
 ( and ) are fine, too. Sometimes, they even behave as expected!
 
+Some basic functions are also supported:
+
+(a)sin(h), (a)cos(h), (a)tan(h), log(10), ceil, fabs, floor
+
 iclc runs until it has devoured all your system's memory or until you quit by entering \quit
 or your favorite flavor of EOF. It reads from stdin, so pipe'ing works, too.
 

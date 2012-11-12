@@ -48,6 +48,16 @@ char* strim(char * s) {
     return s;
 }
 
+// Gibt eine verkettete Fehlerliste auf stderr aus
+void print_parse_errors(parse_context *ctx) {
+    parse_error *error = ctx->error;
+    while (error != NULL) {
+        for (int i=0;i<error->position+2;i++) fprintf(stderr, " ");
+        fprintf(stderr, "^ -- Error: %d: %s\n", error->position, error->message);
+        error = error->_next;
+    }
+}
+
 // Wieviele Zeichen darf die Eingabezeile maximal enthalten?
 // size_t dient der Portabilität (und ist ein vorzeichenloser
 // Ganzzahltyp)
@@ -86,10 +96,9 @@ int repl() {
 
         // 1. Parsen
         parse_context *ctx = start_parse(user_input);
-        parse(ctx);
 
         // 2. Baum traversieren
-        if (ctx->ast_root != NULL) {
+        if (parse(ctx) == 0) {
             printf("-> ");
             print_expr_ast(ctx->ast_root);
             double result = calc_expr_ast(ctx->ast_root);
@@ -97,6 +106,8 @@ int repl() {
             // print
             //////////////////////
             printf(" = %g\n", result);
+        } else {
+            print_parse_errors(ctx);
         }
         // Aufräumen
         end_parse(ctx);

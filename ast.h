@@ -47,6 +47,7 @@ enum parser_ast_node_t {
     EXPR_NUM = -1,
     EXPR_BINOP = -2,
     EXPR_UNOP = -3,
+    EXPR_FUNC = -4,
 
     EXPR_NOP = -255,
 };
@@ -75,6 +76,12 @@ struct _EXPR_BINOP_DATA {
     struct _AST_NODE *rhs;
 };
 
+// Datenstruktur für Funktionen
+struct _EXPR_FUNC_DATA {
+    char *name;
+    struct _AST_NODE *rhs;
+};
+
 // Datenstruktur für No-ops
 struct _EXPR_NOP_DATA {
     struct _AST_NODE *next;
@@ -85,10 +92,15 @@ typedef struct _AST_NODE ast_node;
 typedef struct _EXPR_NUM_DATA expr_num_data;
 typedef struct _EXPR_UNOP_DATA expr_unop_data;
 typedef struct _EXPR_BINOP_DATA expr_binop_data;
+typedef struct _EXPR_FUNC_DATA expr_func_data;
 typedef struct _EXPR_NOP_DATA expr_nop_data;
 
+// Ausdruck auswerten und Ergebnis zurückliefern
 double calc_expr_ast(ast_node *tree);
 void print_expr_ast(ast_node *tree);
 void dump_tree(ast_node *tree, int depth);
+
+// AST-Knoten und alle Subknoten freigeben
+void ast_free_node(ast_node *node);
 
 #endif // _AST_H_

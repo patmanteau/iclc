@@ -1,4 +1,4 @@
-VERSION = 1.0.4
+VERSION = 1.1
 CC      = /usr/bin/gcc
 CFLAGS  = -Wall -std=c99 -g -D_REENTRANT -DVERSION=\"$(VERSION)\"
 LDFLAGS = -lm 

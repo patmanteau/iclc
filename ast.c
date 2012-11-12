@@ -29,6 +29,24 @@ double calc_expr_ast(ast_node *tree) {
     if (!tree) return 0;
 
     switch (tree->type) {
+    case EXPR_FUNC: {
+        expr_func_data *func_data = (expr_func_data*)tree->data;
+        if (strcmp(func_data->name, "sin") == 0) return sin(calc_expr_ast(func_data->rhs));
+        else if (strcmp(func_data->name, "cos") == 0) return cos(calc_expr_ast(func_data->rhs));
+        else if (strcmp(func_data->name, "tan") == 0) return tan(calc_expr_ast(func_data->rhs));
+        else if (strcmp(func_data->name, "acos") == 0) return acos(calc_expr_ast(func_data->rhs));
+        else if (strcmp(func_data->name, "asin") == 0) return asin(calc_expr_ast(func_data->rhs));
+        else if (strcmp(func_data->name, "atan") == 0) return atan(calc_expr_ast(func_data->rhs));
+        else if (strcmp(func_data->name, "cosh") == 0) return cosh(calc_expr_ast(func_data->rhs));
+        else if (strcmp(func_data->name, "sinh") == 0) return sinh(calc_expr_ast(func_data->rhs));
+        else if (strcmp(func_data->name, "tanh") == 0) return tanh(calc_expr_ast(func_data->rhs));
+        else if (strcmp(func_data->name, "log") == 0) return log(calc_expr_ast(func_data->rhs));
+        else if (strcmp(func_data->name, "log10") == 0) return log10(calc_expr_ast(func_data->rhs));
+        else if (strcmp(func_data->name, "ceil") == 0) return ceil(calc_expr_ast(func_data->rhs));
+        else if (strcmp(func_data->name, "fabs") == 0) return fabs(calc_expr_ast(func_data->rhs));
+        else if (strcmp(func_data->name, "floor") == 0) return floor(calc_expr_ast(func_data->rhs));
+        else fprintf(stderr, "Unknown function: %s\n", func_data->name); return -1;
+    }
     case EXPR_NUM: {
         expr_num_data *num_data = (expr_num_data*)tree->data;
         return num_data->val;
@@ -53,7 +71,7 @@ double calc_expr_ast(ast_node *tree) {
         }
         case OP_EXP:
             return pow(calc_expr_ast(binop_data->lhs), calc_expr_ast(binop_data->rhs));
-        default: fprintf(stderr, "Operator not implemented\n"); break;
+        default: fprintf(stderr, "Operator not implemented\n"); return -1;
         }
     }
     case EXPR_UNOP: {
@@ -63,7 +81,7 @@ double calc_expr_ast(ast_node *tree) {
             return calc_expr_ast(unop_data->rhs);
         case OP_NEG:
             return -1.0 * calc_expr_ast(unop_data->rhs);
-        default: fprintf(stderr, "Illegal unary operator\n"); break;
+        default: fprintf(stderr, "Unknown unary operator: %c\n", unop_data->op); return -1;
         }
     }
     case EXPR_NOP: {
@@ -79,6 +97,13 @@ double calc_expr_ast(ast_node *tree) {
 void print_expr_ast(ast_node *tree) {
     if (!tree) return;
     switch (tree->type) {
+    case EXPR_FUNC: {
+        expr_func_data *func_data = (expr_func_data*)tree->data;
+        printf("%s(", func_data->name);
+        print_expr_ast(func_data->rhs);
+        printf(")");
+        break;
+    }
     case EXPR_NUM: {
         expr_num_data *num_data = (expr_num_data*)tree->data;
         printf("%g", num_data->val);
@@ -133,6 +158,12 @@ void dump_tree(ast_node *tree, int depth) {
         printf("%g\n", num_data->val);
         break;
     }
+    case EXPR_FUNC: {
+        expr_func_data *func_data = (expr_func_data*)tree->data;
+        printf("%s:\n", func_data->name);
+        dump_tree(func_data->rhs, depth+1);
+        break;
+    }        
     case EXPR_BINOP: {
         expr_binop_data *binop_data = (expr_binop_data*)tree->data;
         printf("%c:\n", binop_data->op);
@@ -157,3 +188,27 @@ void dump_tree(ast_node *tree, int depth) {
         break;
     }   
 }
+
+void ast_free_node(ast_node *node) {
+    if (node != NULL) {
+        switch (node->type) {
+            // Funktionen: rhs-Subtree rekursiv freigeben
+        case EXPR_FUNC: ast_free_node(((expr_func_data*)node->data)->rhs); free(((expr_func_data*)node->data)->name); break;
+            // Binäre Ausdrücke: lhs- und rhs-Subtree rekursiv freigeben
+        case EXPR_BINOP: ast_free_node(((expr_binop_data*)node->data)->lhs); ast_free_node(((expr_binop_data*)node->data)->rhs); break;
+            // Unäre Ausdrücke: rhs-Subtree rekursiv freigeben
+        case EXPR_UNOP: ast_free_node(((expr_unop_data*)node->data)->rhs); break;
+            // No-ops: Folgeausdruck freigeben
+        case EXPR_NOP: ast_free_node(((expr_nop_data*)node->data)->next); break;
+            // Numerische Literale: nichts freizugeben
+        case EXPR_NUM: break;
+            // Uh-oh...
+        default: printf("ARRRRR, UNKNOWN NODE TYPE!\n\n"); break;
+        }
+        // Datenstruktur freigeben
+        free(node->data);
+        // Abstrakten Knoten freigeben
+        free(node);
+    }
+}
+

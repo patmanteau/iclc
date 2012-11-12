@@ -29,6 +29,7 @@ enum lex_token_t {
     TOK_EOF = -1,
     TOK_NUM = -2,
     TOK_CHAR = -3,
+    TOK_OPER = -4,
 
     TOK_PAREN_OPEN = -101,
     TOK_PAREN_CLOSE = -102,
@@ -50,6 +51,7 @@ typedef struct _LEX_CONTEXT lex_context;
 
 lex_context *lex_open(const char *input);
 void lex_close(lex_context *ctx);
+int lex_get_offset(lex_context *ctx);
 int lex_get_token(lex_context *ctx);
 
 #endif 

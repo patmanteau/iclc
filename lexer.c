@@ -37,6 +37,10 @@ void lex_close(lex_context *ctx) {
     free(ctx);
 }
 
+int lex_get_offset(lex_context *ctx) {
+    return ctx->cursor - ctx->__input;
+}
+
 int lex_get_token(lex_context *ctx) {
     // Status leeren
     ctx->token_double = 0;
@@ -44,7 +48,7 @@ int lex_get_token(lex_context *ctx) {
     // Whitespace überspringen
     while (isspace(*(ctx->cursor))) ctx->cursor++; 
 
-    // Ziffern ([+-][0-9.]+)
+    // Ziffern ([0-9.]+)
     if (isdigit(*(ctx->cursor)) || (*(ctx->cursor) == '.')) {
         char *end = NULL;
         ctx->token_double = strtod(ctx->cursor, &end);
@@ -68,6 +72,14 @@ int lex_get_token(lex_context *ctx) {
     if ((*(ctx->cursor) == 0) || (ctx->cursor >= ctx->_end_of_input)) {
         return TOK_EOF;
     }
+
+    // Operatoren
+    if ((*(ctx->cursor) == '+') || (*(ctx->cursor) == '-') ||
+        (*(ctx->cursor) == '*') || (*(ctx->cursor) == '/') ||
+        (*(ctx->cursor) == '%') || (*(ctx->cursor) == '^')) {
+        ctx->token_char = *(ctx->cursor++);
+        return TOK_OPER;
+    }   
 
     // Alle anderen Zeichen
     ctx->token_char = *(ctx->cursor++);

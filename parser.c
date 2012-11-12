@@ -22,9 +22,11 @@
 
 #include "parser.h"
 
+const int IDENTIFIER_BUFFER_SIZE = 8192;
+
 parse_context *start_parse(const char *input) {
     parse_context *p_ctx = malloc(sizeof(parse_context));
-
+    memset(p_ctx, 0, sizeof(parse_context));
     // Lexer-Kontext erzeugen
     p_ctx->lex_ctx = lex_open(input);
     p_ctx->token = TOK_NOP;
@@ -36,8 +38,24 @@ int parse_get_next_token(parse_context *ctx) {
     return ctx->token;
 }
 
-ast_node *parse_emit_error(const char *msg) {
-    fprintf(stderr, "Error: %s\n", msg);
+ast_node *parse_emit_error(parse_context *ctx, int pos, const char *msg) {
+    // Fehlerstruktur füllen
+    parse_error *e = malloc(sizeof(parse_error));
+    e->_next = NULL;
+    e->message = calloc(strlen(msg), sizeof(char));
+    strcpy(e->message, msg);
+    e->position = pos;
+
+    // Letzten Eintrag in der Fehlerliste finden und e anhängen
+    parse_error *i = ctx->error;
+    if (i == NULL) {
+        // erster Fehler
+        ctx->error = e;
+    }
+    else {
+        while (i->_next != NULL) i = i->_next;
+        i->_next = e;
+    }
     return NULL;
 }
 
@@ -62,7 +80,7 @@ ast_node *parse_paren_expr(parse_context *ctx) {
     // Fehler weiterreichen
     if (!v) return NULL;
     // Fehler werfen, falls die schließende Klammer fehlt.
-    if (ctx->token != TOK_PAREN_CLOSE) return parse_emit_error(") expected.");
+    if (ctx->token != TOK_PAREN_CLOSE) return parse_emit_error(ctx, lex_get_offset(ctx->lex_ctx)+1, ") expected.");
 
     // ')' verbrauchen
     parse_get_next_token(ctx);
@@ -144,56 +162,67 @@ ast_node *parse_unop_expr(parse_context *ctx) {
     parse_get_next_token(ctx);
     
     data->rhs = parse_primary(ctx);
-
     // Fehler weiterreichen
     if (!data->rhs) return NULL;
- 
     node->data = data;
 
     return node;    
 }
 
+ast_node *parse_func(parse_context *ctx) {
+    char *name = calloc(IDENTIFIER_BUFFER_SIZE, sizeof(char)); 
+    int i = 0;
+    do {
+        name[i++] = ctx->lex_ctx->token_char;
+        parse_get_next_token(ctx);
+    } while (ctx->token == TOK_CHAR);
+    name[i] = 0;
+
+    ast_node *node = malloc(sizeof(ast_node));
+    node->type = EXPR_FUNC;
+    expr_func_data *data = malloc(sizeof(expr_func_data));
+    data->name = calloc(strlen(name), sizeof(char));
+    strcpy(data->name, name);
+
+    data->rhs = parse_primary(ctx);
+    // Fehler weiterreichen
+    if (!data->rhs) return NULL;
+    node->data = data;
+
+    return node;
+}
+
 ast_node *parse_primary(parse_context *ctx) {
     switch (ctx->token) {
-    case TOK_CHAR: return parse_unop_expr(ctx);
+    case TOK_CHAR: return parse_func(ctx);
+    case TOK_OPER: return parse_unop_expr(ctx);
     case TOK_NUM: return parse_number_expr(ctx);
     case TOK_PAREN_OPEN: return parse_paren_expr(ctx);
         //case TOK_NOP: parse_get_next_token(ctx); return parse_primary(ctx);
-    default: return parse_emit_error("Not an expression.");
+    default: return parse_emit_error(ctx, lex_get_offset(ctx->lex_ctx), "Function, unary operator, number or ( expected.");
     }
 }
 
-void parse(parse_context *ctx) {
+int parse(parse_context *ctx) {
     parse_get_next_token(ctx);
     ctx->ast_root = parse_expr(ctx);
-}
 
-void free_node(ast_node *node) {
-    if (node != NULL) {
-        switch (node->type) {
-            // Binäre Ausdrücke: lhs- und rhs-Subtree rekursiv freigeben
-        case EXPR_BINOP: free_node(((expr_binop_data*)node->data)->lhs); free_node(((expr_binop_data*)node->data)->rhs); break;
-            // Unäre Ausdrücke: rhs-Subtree rekursiv freigeben
-        case EXPR_UNOP: free_node(((expr_unop_data*)node->data)->rhs); break;
-            // No-ops: Folgeausdruck freigeben
-        case EXPR_NOP: free_node(((expr_nop_data*)node->data)->next); break;
-            // Numerische Literale: nichts freizugeben
-        case EXPR_NUM: break;
-            // Uh-oh...
-        default: printf("ARRRRR, UNKNOWN NODE TYPE!\n\n"); break;
-        }
-        // Datenstruktur freigeben
-        free(node->data);
-        // Abstrakten Knoten freigeben
-        free(node);
-    }
+    if (ctx->error != NULL) return -1;
+    else return 0;
 }
 
 void end_parse(parse_context *ctx) {
     if (ctx != NULL) {
         // Aufräumen
-        free_node(ctx->ast_root);
+        ast_free_node(ctx->ast_root);
         lex_close(ctx->lex_ctx);
+        parse_error *error = ctx->error;
+        while (error != NULL) {
+            parse_error *free_error = error;
+            error = error->_next;
+            free(free_error->message);
+            free(free_error);
+        }
         free(ctx);
     }
 }
