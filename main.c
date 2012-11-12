@@ -53,8 +53,7 @@ char* strim(char * s) {
 // Ganzzahltyp)
 const size_t USER_INPUT_BUFFER_SIZE = 8192;
 
-int main(const int argc, const char **argv) {
-
+int repl() {
     // Eingabepuffer als "String" mit Maximallänge
     char *user_input = (char *)calloc(USER_INPUT_BUFFER_SIZE, sizeof(char));
     
@@ -103,10 +102,15 @@ int main(const int argc, const char **argv) {
         end_parse(ctx);
     } while (1); // loop....
 
-    printf("Quitting.\n");
+    printf("End.\n");
 
     // Speicher freigeben
     free(user_input);
 
     return 0;
+}
+
+int main(const int argc, const char **argv) {
+
+    return repl();
 }

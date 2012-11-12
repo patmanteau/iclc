@@ -45,7 +45,7 @@ ast_node *parse_number_expr(parse_context *ctx) {
     ast_node *node = malloc(sizeof(ast_node));
     node->type = EXPR_NUM;
     expr_num_data *data = malloc(sizeof(expr_num_data));
-    data->val = ctx->lex_ctx->last_token_double;
+    data->val = ctx->lex_ctx->token_double;
     node->data = data;
 
     parse_get_next_token(ctx);
@@ -89,11 +89,11 @@ int parse_operator_precedence(const int op) {
 ast_node *parse_binop_rhs(parse_context *ctx, int expr_precedence, ast_node *lhs) {
     while (1) {
         // Präzedenz des Operators unter dem Cursor holen
-        int tok_precedence = parse_operator_precedence(ctx->lex_ctx->last_token_char);
+        int tok_precedence = parse_operator_precedence(ctx->lex_ctx->token_char);
         if (tok_precedence < expr_precedence) return lhs;
         
         // Operator speichern und verbrauchen
-        int op = ctx->lex_ctx->last_token_char;
+        int op = ctx->lex_ctx->token_char;
         parse_get_next_token(ctx);
 
         // Primärausdruck rechts vom Operator verarbeiten
@@ -101,7 +101,7 @@ ast_node *parse_binop_rhs(parse_context *ctx, int expr_precedence, ast_node *lhs
         if (!rhs) return NULL;
 
         // kommt noch ein Operator?
-        int next_precedence = parse_operator_precedence(ctx->lex_ctx->last_token_char);
+        int next_precedence = parse_operator_precedence(ctx->lex_ctx->token_char);
         if (tok_precedence < next_precedence) {
             // Nächster Ausdruck ist präzedent, rechtshändigen Ausdruck auf die linke
             // Hand durchreichen
@@ -139,7 +139,7 @@ ast_node *parse_unop_expr(parse_context *ctx) {
     ast_node *node = malloc(sizeof(ast_node));
     node->type = EXPR_UNOP;
     expr_unop_data *data = malloc(sizeof(expr_unop_data));
-    data->op = ctx->lex_ctx->last_token_char;
+    data->op = ctx->lex_ctx->token_char;
     
     parse_get_next_token(ctx);
     

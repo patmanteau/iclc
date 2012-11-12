@@ -40,10 +40,10 @@ struct _LEX_CONTEXT {
     // pointer to first input character for free()'ing
     char *__input;
     char *_end_of_input;
-    char *input;
+    char *cursor;
 
-    double last_token_double;
-    char last_token_char;
+    double token_double;
+    char token_char;
 };
 
 typedef struct _LEX_CONTEXT lex_context;

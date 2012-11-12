@@ -1,10 +1,8 @@
 iclc - Interactive Command Line Calculator
 ==========================================
 
-iclc is a simple, interactive, command line calculator. It employs and thus
-demonstrates basic parsing technique. Beware, it leaks like a strainer and
-probably has more bugs than Starship Troopers. Also, it just wants to be
-your dog.
+iclc is a simple, interactive, command line calculator. It employs basic parsing 
+technique. Beware, though: It's not bugfree and it leaks memory all over the plane.
 
 iclc is written in plain C99 and should compile on most systems with only minor
 adjustments. C99 support is required, though. 
@@ -16,12 +14,14 @@ Released under the MIT and GPL licenses.
 Manual
 ------
 
-iclc understands basic arithmetic on floating-point numbers. Supported operators are:
+iclc understands basic arithmetic on (signed) floating-point numbers. Supported operators are:
 
 +, -, *, /, %, ^
 
-( and ) are fine, too. Usually, they even behave as expected!
+( and ) are fine, too. Sometimes, they even behave as expected!
 
-iclc runs until tired or until you quit by entering \quit or your favorite flavor of EOF.
+iclc runs until it has devoured all your system's memory or until you quit by entering \quit
+or your favorite flavor of EOF. It reads from stdin, so pipe'ing works, too.
 
-That's all.
+
+
