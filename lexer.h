@@ -30,6 +30,7 @@ enum lex_token_t {
     TOK_NUM = -2,
     TOK_CHAR = -3,
     TOK_OPER = -4,
+    TOK_IDENT = -5,
 
     TOK_PAREN_OPEN = -101,
     TOK_PAREN_CLOSE = -102,
@@ -45,6 +46,7 @@ struct _LEX_CONTEXT {
 
     double token_double;
     char token_char;
+    char *token_string;
 };
 
 typedef struct _LEX_CONTEXT lex_context;

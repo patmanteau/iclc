@@ -4,7 +4,7 @@ CFLAGS  = -Wall -std=c99 -g -D_REENTRANT -DVERSION=\"$(VERSION)\"
 LDFLAGS = -lm 
 
 BIN = iclc
-OBJ = ast.o parser.o lexer.o main.o
+OBJ = snippets.o eval.o store.o ast.o parser.o lexer.o main.o
 
 .PHONY: clean
 

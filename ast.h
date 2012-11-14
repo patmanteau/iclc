@@ -18,8 +18,7 @@
  *  author:  Patrick Haas
  *  url:     https://github.com/p7haas/iclc
  *  source:  https://github.com/p7haas/iclc
- */                                                   
-
+ */
 
 #ifndef _AST_H_
 #define _AST_H_
@@ -40,6 +39,7 @@ enum binop_t {
     OP_DIV = '/',
     OP_MOD = '%',
     OP_EXP = '^',
+    OP_ASS = '=',
 };
 
 // Knotentypen des Syntaxbaums
@@ -48,6 +48,7 @@ enum parser_ast_node_t {
     EXPR_BINOP = -2,
     EXPR_UNOP = -3,
     EXPR_FUNC = -4,
+    EXPR_VAR  = -5,
 
     EXPR_NOP = -255,
 };
@@ -82,6 +83,11 @@ struct _EXPR_FUNC_DATA {
     struct _AST_NODE *rhs;
 };
 
+// Datenstruktur für Variablen
+struct _EXPR_VAR_DATA {
+    char *name;
+};
+
 // Datenstruktur für No-ops
 struct _EXPR_NOP_DATA {
     struct _AST_NODE *next;
@@ -93,11 +99,10 @@ typedef struct _EXPR_NUM_DATA expr_num_data;
 typedef struct _EXPR_UNOP_DATA expr_unop_data;
 typedef struct _EXPR_BINOP_DATA expr_binop_data;
 typedef struct _EXPR_FUNC_DATA expr_func_data;
+typedef struct _EXPR_VAR_DATA expr_var_data;
 typedef struct _EXPR_NOP_DATA expr_nop_data;
 
-// Ausdruck auswerten und Ergebnis zurückliefern
-double calc_expr_ast(ast_node *tree);
-void print_expr_ast(ast_node *tree);
+// Baum auf stdout ausgeben
 void dump_tree(ast_node *tree, int depth);
 
 // AST-Knoten und alle Subknoten freigeben

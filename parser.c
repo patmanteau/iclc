@@ -42,7 +42,7 @@ ast_node *parse_emit_error(parse_context *ctx, int pos, const char *msg) {
     // Fehlerstruktur füllen
     parse_error *e = malloc(sizeof(parse_error));
     e->_next = NULL;
-    e->message = calloc(strlen(msg), sizeof(char));
+    e->message = calloc(strlen(msg)+1, sizeof(char));
     strcpy(e->message, msg);
     e->position = pos;
 
@@ -91,6 +91,7 @@ ast_node *parse_paren_expr(parse_context *ctx) {
 // zurück oder -1, wenn op, kein Operator ist
 int parse_operator_precedence(const int op) {
     switch (op) {
+    case OP_ASS: return 10;
     case OP_ADD: return 20;
     case OP_SUB: return 20;
     case OP_MUL: return 40;
@@ -169,32 +170,41 @@ ast_node *parse_unop_expr(parse_context *ctx) {
     return node;    
 }
 
-ast_node *parse_func(parse_context *ctx) {
-    char *name = calloc(IDENTIFIER_BUFFER_SIZE, sizeof(char)); 
-    int i = 0;
-    do {
-        name[i++] = ctx->lex_ctx->token_char;
-        parse_get_next_token(ctx);
-    } while (ctx->token == TOK_CHAR);
-    name[i] = 0;
+ast_node *parse_ident_expr(parse_context *ctx) {
+    // Namen merken
+    char *name = calloc(strlen(ctx->lex_ctx->token_string), sizeof(char));
+    strcpy(name, ctx->lex_ctx->token_string);
 
-    ast_node *node = malloc(sizeof(ast_node));
-    node->type = EXPR_FUNC;
-    expr_func_data *data = malloc(sizeof(expr_func_data));
-    data->name = calloc(strlen(name), sizeof(char));
-    strcpy(data->name, name);
+    // Namen verbrauchen
+    parse_get_next_token(ctx);
 
-    data->rhs = parse_primary(ctx);
-    // Fehler weiterreichen
-    if (!data->rhs) return NULL;
-    node->data = data;
+    // Ist das nächste Token keine öffnende Klammer
+    // oder ist es ein EOF, dann haben wir eine
+    // Variable
+    if ((ctx->token == TOK_EOF) || (ctx->token != TOK_PAREN_OPEN)) { // Variable.
+        ast_node *node = malloc(sizeof(ast_node));
+        node->type = EXPR_VAR;
+        expr_var_data *data = malloc(sizeof(expr_var_data));
+        data->name = name;
+        node->data = data;
+        return node;
+    } else { // also muss es eine Funktion sein
+        ast_node *node = malloc(sizeof(ast_node));
+        node->type = EXPR_FUNC;
+        expr_func_data *data = malloc(sizeof(expr_func_data));
+        data->name = name;
 
-    return node;
+        data->rhs = parse_primary(ctx);
+        // Fehler weiterreichen
+        if (!data->rhs) return NULL;
+        node->data = data;
+        return node;
+    }
 }
 
 ast_node *parse_primary(parse_context *ctx) {
     switch (ctx->token) {
-    case TOK_CHAR: return parse_func(ctx);
+    case TOK_IDENT: return parse_ident_expr(ctx);
     case TOK_OPER: return parse_unop_expr(ctx);
     case TOK_NUM: return parse_number_expr(ctx);
     case TOK_PAREN_OPEN: return parse_paren_expr(ctx);

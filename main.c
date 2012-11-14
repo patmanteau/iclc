@@ -23,6 +23,7 @@
 #include "main.h"
 
 #include "parser.h"
+#include "eval.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -55,6 +56,15 @@ void print_parse_errors(parse_context *ctx) {
         for (int i=0;i<error->position+2;i++) fprintf(stderr, " ");
         fprintf(stderr, "^ -- Error: %d: %s\n", error->position, error->message);
         error = error->_next;
+    }
+}
+
+// Gibt eine verkettete Fehlerliste auf stderr aus
+void print_eval_errors(eval_context *ctx) {
+    eval_error *error = ctx->error;
+    while (error != NULL) {
+        fprintf(stderr, "Error: %s\n", error->message);
+        error = error->__next;
     }
 }
 
@@ -95,22 +105,26 @@ int repl() {
         if (strcmp(user_input, "\\quit") == 0) break;
 
         // 1. Parsen
-        parse_context *ctx = start_parse(user_input);
+        parse_context *p_ctx = start_parse(user_input);
 
         // 2. Baum traversieren
-        if (parse(ctx) == 0) {
-            printf("-> ");
-            print_expr_ast(ctx->ast_root);
-            double result = calc_expr_ast(ctx->ast_root);
-            //////////////////////
-            // print
-            //////////////////////
-            printf(" = %g\n", result);
+        if (parse(p_ctx) == 0) {
+            eval_context *e_ctx = eval(p_ctx->ast_root);
+            if (e_ctx == NULL) fprintf(stderr, "Fatal evaluation error.\n");
+            if (e_ctx->success) {
+                //////////////////////
+                // print
+                //////////////////////
+                printf("-> %g\n", e_ctx->result);
+            } else {
+                print_eval_errors(e_ctx);
+            }
+            end_eval(e_ctx);
         } else {
-            print_parse_errors(ctx);
+            print_parse_errors(p_ctx);
         }
         // Aufräumen
-        end_parse(ctx);
+        end_parse(p_ctx);
     } while (1); // loop....
 
     printf("End.\n");

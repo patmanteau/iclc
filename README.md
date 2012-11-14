@@ -16,7 +16,7 @@ Manual
 
 iclc understands basic arithmetic on (signed) floating-point numbers. Supported operators are:
 
-+, -, *, /, %, ^
++, -, *, /, %, ^, = (as assignment to a variable)
 
 ( and ) are fine, too. Sometimes, they even behave as expected!
 
@@ -26,6 +26,3 @@ Some basic functions are also supported:
 
 iclc runs until it has devoured all your system's memory or until you quit by entering \quit
 or your favorite flavor of EOF. It reads from stdin, so pipe'ing works, too.
-
-
-

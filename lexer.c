@@ -26,13 +26,15 @@ const size_t LEX_LEXEME_BUFFER_SIZE = 8192;
 
 lex_context *lex_open(const char *input) {
     lex_context *ctx = malloc(sizeof(lex_context));
-    ctx->__input = ctx->cursor = calloc(strlen(input), sizeof(char));
+    ctx->__input = ctx->cursor = calloc(strlen(input)+1, sizeof(char));
     strcpy(ctx->__input, input);
     ctx->_end_of_input = ctx->__input+strlen(input);
+    ctx->token_string = NULL;
     return ctx;
 }
 
 void lex_close(lex_context *ctx) {
+    free(ctx->token_string);
     free(ctx->__input);
     free(ctx);
 }
@@ -45,6 +47,9 @@ int lex_get_token(lex_context *ctx) {
     // Status leeren
     ctx->token_double = 0;
     ctx->token_char = 0;
+    free(ctx->token_string);
+    ctx->token_string = NULL;
+
     // Whitespace überspringen
     while (isspace(*(ctx->cursor))) ctx->cursor++; 
 
@@ -76,10 +81,26 @@ int lex_get_token(lex_context *ctx) {
     // Operatoren
     if ((*(ctx->cursor) == '+') || (*(ctx->cursor) == '-') ||
         (*(ctx->cursor) == '*') || (*(ctx->cursor) == '/') ||
-        (*(ctx->cursor) == '%') || (*(ctx->cursor) == '^')) {
+        (*(ctx->cursor) == '%') || (*(ctx->cursor) == '^') ||
+        (*(ctx->cursor) == '=')) {
         ctx->token_char = *(ctx->cursor++);
         return TOK_OPER;
-    }   
+    }
+
+    if (isalpha(*(ctx->cursor))) {
+        char ident_name[LEX_LEXEME_BUFFER_SIZE];
+        int i = 0;
+        while (isalnum(*(ctx->cursor)) && 
+               (*(ctx->cursor) != 0)   &&
+               (ctx->cursor < ctx->_end_of_input) &&
+               (i < LEX_LEXEME_BUFFER_SIZE-1)) {
+            ident_name[i++] = *(ctx->cursor++);
+        }
+        ident_name[i] = 0;
+        ctx->token_string = calloc(strlen(ident_name)+1, sizeof(char));
+        strcpy(ctx->token_string, ident_name);
+        return TOK_IDENT;
+    }
 
     // Alle anderen Zeichen
     ctx->token_char = *(ctx->cursor++);
