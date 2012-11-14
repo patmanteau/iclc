@@ -22,7 +22,7 @@
 
 #include "snippets.h"
 
-#include <memory.h>
+#include <stdlib.h>
 #include <string.h>
 
 char *stringalloc(int len) {
