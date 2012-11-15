@@ -22,7 +22,9 @@ iclc understands basic arithmetic on (signed) floating-point numbers. Supported 
 
 Some basic functions are also supported:
 
-(a)sin(h), (a)cos(h), (a)tan(h), log(10), ceil, fabs, floor
+(a)sin(h), (a)cos(h), (a)tan(h), log(10), ceil, fabs, floor, sqrt
+
+There are three preassigned variables: Pi, E and Fibo.
 
 iclc runs until it has devoured all your system's memory or until you quit by entering \quit
 or your favorite flavor of EOF. It reads from stdin, so pipe'ing works, too.

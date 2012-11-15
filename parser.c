@@ -22,6 +22,8 @@
 
 #include "parser.h"
 
+#include "snippets.h"
+
 const int IDENTIFIER_BUFFER_SIZE = 8192;
 
 parse_context *start_parse(const char *input) {
@@ -42,8 +44,7 @@ ast_node *parse_emit_error(parse_context *ctx, int pos, const char *msg) {
     // Fehlerstruktur füllen
     parse_error *e = malloc(sizeof(parse_error));
     e->_next = NULL;
-    e->message = calloc(strlen(msg)+1, sizeof(char));
-    strcpy(e->message, msg);
+    e->message = stringcopy(msg);
     e->position = pos;
 
     // Letzten Eintrag in der Fehlerliste finden und e anhängen
@@ -172,8 +173,7 @@ ast_node *parse_unop_expr(parse_context *ctx) {
 
 ast_node *parse_ident_expr(parse_context *ctx) {
     // Namen merken
-    char *name = calloc(strlen(ctx->lex_ctx->token_string), sizeof(char));
-    strcpy(name, ctx->lex_ctx->token_string);
+    char *name = stringcopy(ctx->lex_ctx->token_string);
 
     // Namen verbrauchen
     parse_get_next_token(ctx);

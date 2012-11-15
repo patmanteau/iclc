@@ -20,7 +20,10 @@
  *  source:  https://github.com/p7haas/iclc
  */                                                   
 
+#include <math.h>
+
 #include "store.h"
+#include "snippets.h"
 
 void store_var(store *st, const char *name, double val) {
     var_item **it = &st->__first;
@@ -29,8 +32,7 @@ void store_var(store *st, const char *name, double val) {
         // neuer Eintrag?
         if (*it == NULL) {
             var_item *new_item = malloc(sizeof(var_item));
-            new_item->name = calloc(strlen(name)+1, sizeof(char));
-            strcpy(new_item->name, name);
+            new_item->name = stringcopy(name);
             new_item->val = val;
             new_item->__next = NULL;
             *it = new_item;
@@ -81,6 +83,12 @@ void store_free(store *st) {
 store *store_get() {
     static store *the_store = NULL; 
 
-    if (the_store == NULL) the_store = store_create();
+    if (the_store == NULL) {
+        the_store = store_create();
+        // Store mit einigen Werten vorbelegen
+        store_var(the_store, "Pi", atan(1)*4);
+        store_var(the_store, "E", 2.718281828459045235360);
+        store_var(the_store, "Fibo", (1+sqrt(5))/2);
+    }
     return the_store;
 }

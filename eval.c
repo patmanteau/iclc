@@ -39,8 +39,7 @@ double eval_emit_error(eval_context *ctx, const char *format, ...) {
     // Fehlerstruktur füllen
     eval_error *e = malloc(sizeof(eval_error));
     e->__next = NULL;
-    e->message = calloc(strlen(fmtbuf)+1, sizeof(char));
-    strcpy(e->message, fmtbuf);
+    e->message = stringcopy(fmtbuf);
 
     // Letzten Eintrag in der Fehlerliste finden und e anhängen
     eval_error **it = &ctx->error;
@@ -69,6 +68,7 @@ double eval_expr_func(eval_context *ctx, ast_node *tree) {
     else if (strcmp(func_data->name, "ceil") == 0) return ceil(eval_expr(ctx, func_data->rhs));
     else if (strcmp(func_data->name, "fabs") == 0) return fabs(eval_expr(ctx, func_data->rhs));
     else if (strcmp(func_data->name, "floor") == 0) return floor(eval_expr(ctx, func_data->rhs));
+    else if (strcmp(func_data->name, "sqrt") == 0) return sqrt(eval_expr(ctx, func_data->rhs));
     else return eval_emit_error(ctx, "Unknown function %s.", func_data->name);
 }
 

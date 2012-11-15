@@ -24,6 +24,7 @@
 
 #include "parser.h"
 #include "eval.h"
+#include "snippets.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -71,16 +72,16 @@ void print_eval_errors(eval_context *ctx) {
 // Wieviele Zeichen darf die Eingabezeile maximal enthalten?
 // size_t dient der Portabilität (und ist ein vorzeichenloser
 // Ganzzahltyp)
-const size_t USER_INPUT_BUFFER_SIZE = 8192;
+const size_t LINE_BUFFER_SIZE = 8192;
 
 int repl() {
     // Eingabepuffer als "String" mit Maximallänge
-    char *user_input = (char *)calloc(USER_INPUT_BUFFER_SIZE, sizeof(char));
+    char *user_input = calloc(LINE_BUFFER_SIZE, sizeof(char));
     
     // Eingabeschleife als REPL(read-eval-print loop) -> Eingabe, Verarbeitung, Ausgabe
     do {
         // Eingabepuffer löschen
-        memset(user_input, 0, USER_INPUT_BUFFER_SIZE);
+        memset(user_input, 0, LINE_BUFFER_SIZE);
         
         //////////////////////
         // read
@@ -94,7 +95,7 @@ int repl() {
         // break ist eigentlich nicht schön (=nicht im Struktogramm
         // abbildbar ;) ), dient aber hier der Klarheit, da einige
         // if entfallen können
-        if (!fgets(user_input, USER_INPUT_BUFFER_SIZE, stdin)) break;
+        if (!fgets(user_input, LINE_BUFFER_SIZE, stdin)) break;
         strim(user_input);
 
         //////////////////////
@@ -115,7 +116,7 @@ int repl() {
                 //////////////////////
                 // print
                 //////////////////////
-                printf("-> %g\n", e_ctx->result);
+                printf("-> %.20g\n", e_ctx->result);
             } else {
                 print_eval_errors(e_ctx);
             }

@@ -22,12 +22,13 @@
 
 #include "lexer.h"
 
+#include "snippets.h"
+
 const size_t LEX_LEXEME_BUFFER_SIZE = 8192;
 
 lex_context *lex_open(const char *input) {
     lex_context *ctx = malloc(sizeof(lex_context));
-    ctx->__input = ctx->cursor = calloc(strlen(input)+1, sizeof(char));
-    strcpy(ctx->__input, input);
+    ctx->__input = ctx->cursor = stringcopy(input);
     ctx->_end_of_input = ctx->__input+strlen(input);
     ctx->token_string = NULL;
     return ctx;
@@ -97,8 +98,7 @@ int lex_get_token(lex_context *ctx) {
             ident_name[i++] = *(ctx->cursor++);
         }
         ident_name[i] = 0;
-        ctx->token_string = calloc(strlen(ident_name)+1, sizeof(char));
-        strcpy(ctx->token_string, ident_name);
+        ctx->token_string = stringcopy(ident_name);
         return TOK_IDENT;
     }
 
