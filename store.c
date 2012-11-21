@@ -25,7 +25,7 @@
 #include "store.h"
 #include "snippets.h"
 
-void store_var(store *st, const char *name, double val) {
+void store_var(store *st, const char *name, LONG_DOUBLE val) {
     var_item **it = &st->__first;
     
     while (1==1) {
@@ -53,7 +53,7 @@ bool store_has_var(store *st, const char *name) {
     return false;
 }
 
-double store_get_var(store *st, const char *name) {
+LONG_DOUBLE store_get_var(store *st, const char *name) {
     var_item *it = st->__first;
     while (it != NULL) {
         if (strcmp(it->name, name) == 0) return it->val;
@@ -86,8 +86,8 @@ store *store_get() {
     if (the_store == NULL) {
         the_store = store_create();
         // Store mit einigen Werten vorbelegen
-        store_var(the_store, "Pi", atan(1)*4);
-        store_var(the_store, "E", 2.718281828459045235360);
+        store_var(the_store, "Pi", atanl(1)*4); 
+        store_var(the_store, "E", 2.71828182845904523536028747135266249775724709369995L);
         store_var(the_store, "Fibo", (1+sqrt(5))/2);
     }
     return the_store;

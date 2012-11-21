@@ -26,6 +26,14 @@
 #include "eval.h"
 #include "snippets.h"
 
+#ifdef HAVE_READLINE
+#include <readline/readline.h>
+#include <readline/history.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
+#endif
+
 //////////////////////////////////////////////////////////////////////
 //
 // Helferfunktionen
@@ -70,25 +78,55 @@ void print_eval_errors(eval_context *ctx) {
 }
 
 // Wieviele Zeichen darf die Eingabezeile maximal enthalten?
-// size_t dient der Portabilität (und ist ein vorzeichenloser
-// Ganzzahltyp)
 const size_t LINE_BUFFER_SIZE = 8192;
 
-int repl() {
-    // Eingabepuffer als "String" mit Maximallänge
-    char *user_input = calloc(LINE_BUFFER_SIZE, sizeof(char));
+#ifdef HAVE_READLINE
+//char *HISTORY_FILENAME = NULL;
+const char *history_filename() {
+    static char *name = NULL;
+
+    if (!name) {
+        char *homedir = getenv("HOME");
+        const char *fname = "/.iclc_history";
+        if (!homedir) {
+            struct passwd *pw = getpwuid(getuid());
+            homedir = pw->pw_dir;
+        }
+        name = calloc(strlen(homedir)+strlen(fname), sizeof(char));
+        strcpy(name, homedir);
+        strcpy(name+strlen(name), fname);
+    }
     
+    return name;
+}
+#endif // HAVE_READLINE
+
+
+int repl() {
+#ifdef HAVE_READLINE
+    history_truncate_file(history_filename(), 1000);
+    read_history(history_filename());
+#endif // HAVE_READLINE
+
+
     // Eingabeschleife als REPL(read-eval-print loop) -> Eingabe, Verarbeitung, Ausgabe
     do {
-        // Eingabepuffer löschen
-        memset(user_input, 0, LINE_BUFFER_SIZE);
-        
+        char *user_input = NULL;
         //////////////////////
         // read
         //////////////////////
-        
-        printf("?: ");
 
+#ifdef HAVE_READLINE
+        user_input = readline("?: ");
+        
+        if (!user_input) break;
+        strim(user_input);
+
+        if (*user_input) add_history(user_input);
+#else
+        // Eingabepuffer als "String" mit Maximallänge
+        user_input = calloc(LINE_BUFFER_SIZE, sizeof(char));
+        printf("?: ");
         // Bei end-of-file oder Lesefehler gibt fgets NULL zurück
         // und das Programm soll beendet werden (analog zur Shell)
         //
@@ -97,7 +135,8 @@ int repl() {
         // if entfallen können
         if (!fgets(user_input, LINE_BUFFER_SIZE, stdin)) break;
         strim(user_input);
-
+#endif // HAVE_READLINE
+        
         //////////////////////
         // eval
         //////////////////////
@@ -116,7 +155,7 @@ int repl() {
                 //////////////////////
                 // print
                 //////////////////////
-                printf("-> %.20g\n", e_ctx->result);
+                printf("-> %.50Lg\n", e_ctx->result);
             } else {
                 print_eval_errors(e_ctx);
             }
@@ -126,13 +165,14 @@ int repl() {
         }
         // Aufräumen
         end_parse(p_ctx);
+        free(user_input);
     } while (1); // loop....
 
+#ifdef HAVE_READLINE
+    write_history(history_filename());
+#endif // HAVE_READLINE
+
     printf("End.\n");
-
-    // Speicher freigeben
-    free(user_input);
-
     return 0;
 }
 

@@ -29,7 +29,7 @@
 
 const int MAX_PN = 255;
 
-double eval_emit_error(eval_context *ctx, const char *format, ...) {
+LONG_DOUBLE eval_emit_error(eval_context *ctx, const char *format, ...) {
     // Fehlerstring aufbauen, printf-Syntax
     va_list args;
     va_start(args, format);
@@ -52,38 +52,38 @@ double eval_emit_error(eval_context *ctx, const char *format, ...) {
     return -NAN;
 }
 
-double eval_expr_func(eval_context *ctx, ast_node *tree) {
+LONG_DOUBLE eval_expr_func(eval_context *ctx, ast_node *tree) {
     expr_func_data *func_data = (expr_func_data*)tree->data;
-    if (strcmp(func_data->name, "sin") == 0) return sin(eval_expr(ctx, func_data->rhs));
-    else if (strcmp(func_data->name, "cos") == 0) return cos(eval_expr(ctx, func_data->rhs));
-    else if (strcmp(func_data->name, "tan") == 0) return tan(eval_expr(ctx, func_data->rhs));
-    else if (strcmp(func_data->name, "acos") == 0) return acos(eval_expr(ctx, func_data->rhs));
-    else if (strcmp(func_data->name, "asin") == 0) return asin(eval_expr(ctx, func_data->rhs));
-    else if (strcmp(func_data->name, "atan") == 0) return atan(eval_expr(ctx, func_data->rhs));
-    else if (strcmp(func_data->name, "cosh") == 0) return cosh(eval_expr(ctx, func_data->rhs));
-    else if (strcmp(func_data->name, "sinh") == 0) return sinh(eval_expr(ctx, func_data->rhs));
-    else if (strcmp(func_data->name, "tanh") == 0) return tanh(eval_expr(ctx, func_data->rhs));
-    else if (strcmp(func_data->name, "log") == 0) return log(eval_expr(ctx, func_data->rhs));
-    else if (strcmp(func_data->name, "log10") == 0) return log10(eval_expr(ctx, func_data->rhs));
-    else if (strcmp(func_data->name, "ceil") == 0) return ceil(eval_expr(ctx, func_data->rhs));
-    else if (strcmp(func_data->name, "fabs") == 0) return fabs(eval_expr(ctx, func_data->rhs));
-    else if (strcmp(func_data->name, "floor") == 0) return floor(eval_expr(ctx, func_data->rhs));
-    else if (strcmp(func_data->name, "sqrt") == 0) return sqrt(eval_expr(ctx, func_data->rhs));
+    if (strcmp(func_data->name, "sin") == 0) return sinl(eval_expr(ctx, func_data->rhs));
+    else if (strcmp(func_data->name, "cos") == 0) return cosl(eval_expr(ctx, func_data->rhs));
+    else if (strcmp(func_data->name, "tan") == 0) return tanl(eval_expr(ctx, func_data->rhs));
+    else if (strcmp(func_data->name, "acos") == 0) return acosl(eval_expr(ctx, func_data->rhs));
+    else if (strcmp(func_data->name, "asin") == 0) return asinl(eval_expr(ctx, func_data->rhs));
+    else if (strcmp(func_data->name, "atan") == 0) return atanl(eval_expr(ctx, func_data->rhs));
+    else if (strcmp(func_data->name, "cosh") == 0) return coshl(eval_expr(ctx, func_data->rhs));
+    else if (strcmp(func_data->name, "sinh") == 0) return sinhl(eval_expr(ctx, func_data->rhs));
+    else if (strcmp(func_data->name, "tanh") == 0) return tanhl(eval_expr(ctx, func_data->rhs));
+    else if (strcmp(func_data->name, "log") == 0) return logl(eval_expr(ctx, func_data->rhs));
+    else if (strcmp(func_data->name, "log10") == 0) return log10l(eval_expr(ctx, func_data->rhs));
+    else if (strcmp(func_data->name, "ceil") == 0) return ceill(eval_expr(ctx, func_data->rhs));
+    else if (strcmp(func_data->name, "fabs") == 0) return fabsl(eval_expr(ctx, func_data->rhs));
+    else if (strcmp(func_data->name, "floor") == 0) return floorl(eval_expr(ctx, func_data->rhs));
+    else if (strcmp(func_data->name, "sqrt") == 0) return sqrtl(eval_expr(ctx, func_data->rhs));
     else return eval_emit_error(ctx, "Unknown function %s.", func_data->name);
 }
 
-double eval_expr_var(eval_context *ctx, ast_node *tree) {
+LONG_DOUBLE eval_expr_var(eval_context *ctx, ast_node *tree) {
     expr_var_data *var_data = (expr_var_data*)tree->data;
     if (store_has_var(store_get(), var_data->name)) return store_get_var(store_get(), var_data->name);
     else return eval_emit_error(ctx, "Undeclared variable %s.", var_data->name);
 }
 
-double eval_expr_num(eval_context *ctx, ast_node *tree) {
+LONG_DOUBLE eval_expr_num(eval_context *ctx, ast_node *tree) {
     expr_num_data *num_data = (expr_num_data*)tree->data;
     return num_data->val;
 }
 
-double eval_expr_binop(eval_context *ctx, ast_node *tree) {
+LONG_DOUBLE eval_expr_binop(eval_context *ctx, ast_node *tree) {
     expr_binop_data *binop_data = (expr_binop_data*)tree->data;
     switch (binop_data->op) {
     case OP_ADD:
@@ -96,8 +96,8 @@ double eval_expr_binop(eval_context *ctx, ast_node *tree) {
         return eval_expr(ctx, binop_data->lhs) / eval_expr(ctx, binop_data->rhs);
     case OP_MOD: {
         // Knuthsche "floored division"
-        double a = eval_expr(ctx, binop_data->lhs);
-        double n = eval_expr(ctx, binop_data->rhs);
+        LONG_DOUBLE a = eval_expr(ctx, binop_data->lhs);
+        LONG_DOUBLE n = eval_expr(ctx, binop_data->rhs);
         return a-n*floor(a/n);
     }
     case OP_EXP:
@@ -106,7 +106,7 @@ double eval_expr_binop(eval_context *ctx, ast_node *tree) {
         if (binop_data->lhs->type != EXPR_VAR) return eval_emit_error(ctx, "Cannot assign to a non-variable.");
         else {
             expr_var_data *var_data = (expr_var_data*)binop_data->lhs->data;
-            double rhs_res = eval_expr(ctx, binop_data->rhs);
+            LONG_DOUBLE rhs_res = eval_expr(ctx, binop_data->rhs);
             store_var(store_get(), var_data->name, rhs_res);
             return rhs_res;
         }
@@ -115,7 +115,7 @@ double eval_expr_binop(eval_context *ctx, ast_node *tree) {
     }
 }
 
-double eval_expr_unop(eval_context *ctx, ast_node *tree) {
+LONG_DOUBLE eval_expr_unop(eval_context *ctx, ast_node *tree) {
     expr_unop_data *unop_data = (expr_unop_data*)tree->data;
     switch (unop_data->op) {
     case OP_POS:
@@ -126,13 +126,13 @@ double eval_expr_unop(eval_context *ctx, ast_node *tree) {
     }
 }
 
-double eval_expr_nop(eval_context *ctx, ast_node *tree) {
+LONG_DOUBLE eval_expr_nop(eval_context *ctx, ast_node *tree) {
     expr_nop_data *nop_data = (expr_nop_data*)tree->data;
     return eval_expr(ctx, nop_data->next);
 }
 
 
-double eval_expr(eval_context *ctx, ast_node *tree) {
+LONG_DOUBLE eval_expr(eval_context *ctx, ast_node *tree) {
     if (!tree) return eval_emit_error(ctx, "Evaluation error: node is NULL.");
 
     switch (tree->type) {
@@ -188,7 +188,7 @@ void evalprintf(ast_node *tree) {
     }
     case EXPR_NUM: {
         expr_num_data *num_data = (expr_num_data*)tree->data;
-        printf("%g", num_data->val);
+        printf("%Lg", num_data->val);
         break;
     }
     case EXPR_BINOP: {

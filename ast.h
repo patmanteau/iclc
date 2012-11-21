@@ -61,7 +61,7 @@ struct _AST_NODE {
 
 // Datenstruktur für numerische Literalausdrücke
 struct _EXPR_NUM_DATA {
-    double val;
+    LONG_DOUBLE val;
 };
 
 // Datenstruktur für unäre Ausdrücke

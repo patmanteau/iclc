@@ -33,7 +33,7 @@ struct _EVAL_ERROR {
 
 struct _EVAL_CONTEXT {
     bool success;
-    double result;
+    LONG_DOUBLE result;
 
     struct _EVAL_ERROR *error;
 };
@@ -46,7 +46,7 @@ typedef struct _EVAL_CONTEXT eval_context;
 // freigegeben werden.
 eval_context *eval(ast_node *tree);
 
-double eval_expr(eval_context *ctx, ast_node *tree);
+LONG_DOUBLE eval_expr(eval_context *ctx, ast_node *tree);
 
 void evalprintf(ast_node *tree);
 // Auswertungskontext freigeben

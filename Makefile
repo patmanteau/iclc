@@ -1,7 +1,7 @@
 VERSION = 1.1
-CC      = /usr/bin/gcc
-CFLAGS  = -Wall -std=c99 -g -D_REENTRANT -DVERSION=\"$(VERSION)\"
-LDFLAGS = -lm 
+CC      = /usr/bin/clang
+CFLAGS  = -Wall -std=c99 -g -DHAVE_READLINE -D_REENTRANT -DVERSION=\"$(VERSION)\"
+LDFLAGS = -lm -lreadline
 
 BIN = iclc
 OBJ = snippets.o eval.o store.o ast.o parser.o lexer.o main.o

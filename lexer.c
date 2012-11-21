@@ -57,7 +57,7 @@ int lex_get_token(lex_context *ctx) {
     // Ziffern ([0-9.]+)
     if (isdigit(*(ctx->cursor)) || (*(ctx->cursor) == '.')) {
         char *end = NULL;
-        ctx->token_double = strtod(ctx->cursor, &end);
+        ctx->token_double = STRTOLD(ctx->cursor, &end);
         ctx->token_char = *(end-1);
         ctx->cursor = end;
         return TOK_NUM;

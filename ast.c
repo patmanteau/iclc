@@ -28,7 +28,7 @@ void dump_tree(ast_node *tree, int depth) {
     switch (tree->type) {
     case EXPR_NUM: {
         expr_num_data *num_data = (expr_num_data*)tree->data;
-        printf("%g\n", num_data->val);
+        printf("%Lg\n", num_data->val);
         break;
     }
     case EXPR_FUNC: {

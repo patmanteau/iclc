@@ -44,7 +44,7 @@ struct _LEX_CONTEXT {
     char *_end_of_input;
     char *cursor;
 
-    double token_double;
+    LONG_DOUBLE token_double;
     char token_char;
     char *token_string;
 };

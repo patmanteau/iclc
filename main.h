@@ -30,4 +30,7 @@
 #include <string.h>
 #include <ctype.h>
 
+typedef long double LONG_DOUBLE;
+#define STRTOLD(X, Y) strtold(X, Y)
+
 #endif // _MAIN_H_

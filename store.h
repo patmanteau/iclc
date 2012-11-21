@@ -27,7 +27,7 @@
 
 struct _VAR_ITEM {
     char *name;
-    double val;
+    LONG_DOUBLE val;
 
     struct _VAR_ITEM *__next;
 };
@@ -39,10 +39,10 @@ struct _STORE {
 typedef struct _VAR_ITEM var_item;
 typedef struct _STORE store;
 
-void store_var(store *st, const char *name, double val);
+void store_var(store *st, const char *name, LONG_DOUBLE val);
 
 bool store_has_var(store *st, const char *name);
-double store_get_var(store *st, const char *name);
+LONG_DOUBLE store_get_var(store *st, const char *name);
 
 store *store_get();
 void store_free(store *st);
