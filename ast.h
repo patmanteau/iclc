@@ -24,6 +24,7 @@
 #define _AST_H_
 
 #include "main.h"
+#include "arglist.h"
 
 // Unäre Operatoren
 enum unop_t {
@@ -77,9 +78,16 @@ struct _EXPR_BINOP_DATA {
     struct _AST_NODE *rhs;
 };
 
-// Datenstruktur für Funktionen
+// Datenstruktur für Funktionsaufrufe
 struct _EXPR_FUNC_DATA {
     char *name;
+    arglist *args;
+};
+
+// Datenstruktur für Funktionsdefinitionen
+struct _FUNC_DEF_DATA {
+    char *name;
+    arglist *args;    
     struct _AST_NODE *rhs;
 };
 
@@ -101,6 +109,7 @@ typedef struct _EXPR_BINOP_DATA expr_binop_data;
 typedef struct _EXPR_FUNC_DATA expr_func_data;
 typedef struct _EXPR_VAR_DATA expr_var_data;
 typedef struct _EXPR_NOP_DATA expr_nop_data;
+typedef struct _FUNC_DEF_DATA func_def_data;
 
 // Baum auf stdout ausgeben
 void dump_tree(ast_node *tree, int depth);

@@ -65,6 +65,11 @@ LONG_DOUBLE store_get_var(store *st, const char *name) {
 store *store_create() {
     store *st = malloc(sizeof(store));
     st->__first = NULL;
+    // Store mit einigen Werten vorbelegen
+    store_var(st, "Pi", atanl(1)*4); 
+    store_var(st, "E", 2.71828182845904523536028747135266249775724709369995L);
+    store_var(st, "Fibo", (1+sqrt(5))/2);
+ 
     return st;
 }
 
@@ -80,15 +85,11 @@ void store_free(store *st) {
     st->__first = NULL;
 }
 
-store *store_get() {
+store *store_get_global() {
     static store *the_store = NULL; 
 
     if (the_store == NULL) {
         the_store = store_create();
-        // Store mit einigen Werten vorbelegen
-        store_var(the_store, "Pi", atanl(1)*4); 
-        store_var(the_store, "E", 2.71828182845904523536028747135266249775724709369995L);
-        store_var(the_store, "Fibo", (1+sqrt(5))/2);
-    }
+   }
     return the_store;
 }

@@ -1,7 +1,7 @@
 /**
  * iclc - Interactive Command Line Calculator
  *
- * store.h
+ * arglist.h
  *
  * iclc is a simple, interactive, command line calculator. It
  * employs and thereby demonstrates basic parsing technique. 
@@ -18,38 +18,31 @@
  *  author:  Patrick Haas
  *  url:     https://github.com/p7haas/iclc
  *  source:  https://github.com/p7haas/iclc
- */                                                   
+ */
 
-#ifndef _STORE_H_
-#define _STORE_H_
+#ifndef _ARGLIST_H_
+#define _ARGLIST_H_
 
 #include "main.h"
 
-struct _VAR_ITEM {
+struct _ARGLIST_EL {
     char *name;
-    LONG_DOUBLE val;
+    struct _AST_NODE *val;
 
-    struct _VAR_ITEM *__next;
+    struct _ARGLIST_EL *next;
 };
 
-struct _FUNC_ITEM {
-    char *name;
-    
+struct _ARGLIST {
+    struct _ARGLIST_EL *first;    
 };
 
-struct _STORE {
-    struct _VAR_ITEM *__first;
-};
+typedef struct _ARGLIST_EL arglist_el;
+typedef struct _ARGLIST arglist;
 
-typedef struct _VAR_ITEM var_item;
-typedef struct _STORE store;
+arglist *arglist_create();
+void arglist_add(arglist *l, const char *name, struct _AST_NODE *val);
+const arglist_el *arglist_get_index(arglist *l, int i);
+const arglist_el *arglist_get_name(arglist *l, const char *name);
+void arglist_free(arglist *l);
 
-void store_var(store *st, const char *name, LONG_DOUBLE val);
-
-bool store_has_var(store *st, const char *name);
-LONG_DOUBLE store_get_var(store *st, const char *name);
-
-store *store_get_global();
-void store_free(store *st);
-
-#endif // _STORE_H_
+#endif // _ARGLIST_H_

@@ -22,11 +22,26 @@
 
 #include "snippets.h"
 
-#include <stdlib.h>
-#include <string.h>
+void *safe_malloc(size_t num) {
+    void *p = malloc(num);
+    if (p == NULL) {
+        perror(NULL);
+        exit(-1);
+    }
+    return p;
+}
+
+void *safe_calloc(int num, size_t size) {
+    void *p = calloc(num, size);
+    if (p == NULL) {
+        perror(NULL);
+        exit(-1);
+    }
+    return p;
+}
 
 char *stringalloc(int len) {
-    return calloc(len+1, sizeof(char));
+    return safe_calloc(len+1, sizeof(char));
 }
 
 char *stringcopy(const char *src) {

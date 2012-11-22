@@ -24,6 +24,7 @@
 #define _EVAL_H_
 
 #include "ast.h"
+#include "store.h"
 
 struct _EVAL_ERROR {
     char *message;
@@ -46,7 +47,7 @@ typedef struct _EVAL_CONTEXT eval_context;
 // freigegeben werden.
 eval_context *eval(ast_node *tree);
 
-LONG_DOUBLE eval_expr(eval_context *ctx, ast_node *tree);
+LONG_DOUBLE eval_expr(eval_context *ctx, store *st, ast_node *tree);
 
 void evalprintf(ast_node *tree);
 // Auswertungskontext freigeben

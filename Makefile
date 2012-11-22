@@ -4,7 +4,7 @@ CFLAGS  = -Wall -std=c99 -g -DHAVE_READLINE -D_REENTRANT -DVERSION=\"$(VERSION)\
 LDFLAGS = -lm -lreadline
 
 BIN = iclc
-OBJ = snippets.o eval.o store.o ast.o parser.o lexer.o main.o
+OBJ = arglist.o snippets.o eval.o store.o ast.o parser.o lexer.o main.o
 
 .PHONY: clean
 

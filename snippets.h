@@ -23,6 +23,13 @@
 #ifndef _SNIPPETS_H_
 #define _SNIPPETS_H_
 
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+
+void *safe_malloc(size_t num);
+void *safe_calloc(int num, size_t size);
+
 char *stringalloc(int len);
 char *stringcopy(const char *src);
 
