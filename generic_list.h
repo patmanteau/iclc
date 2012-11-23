@@ -25,7 +25,7 @@
 
 #include "main.h"
 
-#define DECLARE_LIST(TYPE)          \
+#define DECLARE_LIST_T(TYPE)        \
 typedef struct TYPE##_el_tag {      \              
     struct TYPE##_el_tag *prev;     \
     struct TYPE##_el_tag *next;     \
@@ -33,21 +33,26 @@ typedef struct TYPE##_el_tag {      \
     TYPE data;                      \
 } TYPE##_el_t;                      \
                                     \
-struct TYPE##_list_tag {            \
+typedef struct TYPE##_list_tag {    \
     TYPE##_el_t **first;            \
     TYPE##_el_t **last;             \
+                                    \
     unsigned long size;             \
-} TYPE##list_t;
+} TYPE##_list_t;                     
 
+#define list_t(TYPE) TYPE##_list_t
 
+#define EMPTY_LIST { .first=NULL, .last=NULL, .size=0 }
 
-typedef struct _ARGLIST_EL arglist_el;
-typedef struct _ARGLIST arglist;
+#define list_append(TYPE, LIST, DATA)   \
+do {                                    \
+    TYPE datum = DATA;                  \
+    
 
-arglist *arglist_create();
 void arglist_add(arglist *l, const char *name, struct _AST_NODE *val);
 const arglist_el *arglist_get_index(arglist *l, int i);
 const arglist_el *arglist_get_name(arglist *l, const char *name);
 void arglist_free(arglist *l);
 
 #endif // _ARGLIST_H_
+
