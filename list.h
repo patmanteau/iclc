@@ -1,7 +1,7 @@
 /**
  * iclc - Interactive Command Line Calculator
  *
- * arglist.h
+ * list.h
  *
  * iclc is a simple, interactive, command line calculator. It
  * employs and thereby demonstrates basic parsing technique. 
@@ -20,21 +20,26 @@
  *  source:  https://github.com/p7haas/iclc
  */
 
-#ifndef _ARGLIST_H_
-#define _ARGLIST_H_
+#ifndef _LIST_H_
+#define _LIST_H_
 
 #include "main.h"
 
-struct _ARGLIST_EL {
-    char *name;
-    struct _AST_NODE *val;
+#define DECLARE_LIST(TYPE)          \
+typedef struct TYPE##_el_tag {      \              
+    struct TYPE##_el_tag *prev;     \
+    struct TYPE##_el_tag *next;     \
+                                    \
+    TYPE data;                      \
+} TYPE##_el_t;                      \
+                                    \
+struct TYPE##_list_tag {            \
+    TYPE##_el_t **first;            \
+    TYPE##_el_t **last;             \
+    unsigned long size;             \
+} TYPE##list_t;
 
-    struct _ARGLIST_EL *next;
-};
 
-struct _ARGLIST {
-    struct _ARGLIST_EL *first;    
-};
 
 typedef struct _ARGLIST_EL arglist_el;
 typedef struct _ARGLIST arglist;
