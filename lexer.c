@@ -74,6 +74,12 @@ int lex_get_token(lex_context *ctx) {
         return TOK_PAREN_CLOSE;
     }
 
+    // Komma
+    if (*(ctx->cursor) == ',') {
+        ctx->token_char = *(ctx->cursor++);
+        return TOK_COMMA;
+    }
+
     // Ende der Eingabe
     if ((*(ctx->cursor) == 0) || (ctx->cursor >= ctx->_end_of_input)) {
         return TOK_EOF;

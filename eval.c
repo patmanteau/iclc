@@ -54,6 +54,7 @@ LONG_DOUBLE eval_emit_error(eval_context *ctx, const char *format, ...) {
 
 LONG_DOUBLE eval_expr_func(eval_context *ctx, store *st, ast_node *tree) {
     expr_func_data *func_data = (expr_func_data*)tree->data;
+    /*
     if (strcmp(func_data->name, "sin") == 0) return sinl(eval_expr(ctx, st, func_data->rhs));
     else if (strcmp(func_data->name, "cos") == 0) return cosl(eval_expr(ctx, st, func_data->rhs));
     else if (strcmp(func_data->name, "tan") == 0) return tanl(eval_expr(ctx, st, func_data->rhs));
@@ -69,6 +70,22 @@ LONG_DOUBLE eval_expr_func(eval_context *ctx, store *st, ast_node *tree) {
     else if (strcmp(func_data->name, "fabs") == 0) return fabsl(eval_expr(ctx, st, func_data->rhs));
     else if (strcmp(func_data->name, "floor") == 0) return floorl(eval_expr(ctx, st, func_data->rhs));
     else if (strcmp(func_data->name, "sqrt") == 0) return sqrtl(eval_expr(ctx, st, func_data->rhs));
+    */
+    if (strcmp(func_data->name, "sin") == 0) return sinl(eval_expr(ctx, st, *list_first(ast_node_ptr, func_data->args)));
+    else if (strcmp(func_data->name, "cos") == 0) return cosl(eval_expr(ctx, st, *list_first(ast_node_ptr, func_data->args)));
+    else if (strcmp(func_data->name, "tan") == 0) return tanl(eval_expr(ctx, st, *list_first(ast_node_ptr, func_data->args)));
+    else if (strcmp(func_data->name, "acos") == 0) return acosl(eval_expr(ctx, st, *list_first(ast_node_ptr, func_data->args)));
+    else if (strcmp(func_data->name, "asin") == 0) return asinl(eval_expr(ctx, st, *list_first(ast_node_ptr, func_data->args)));
+    else if (strcmp(func_data->name, "atan") == 0) return atanl(eval_expr(ctx, st, *list_first(ast_node_ptr, func_data->args)));
+    else if (strcmp(func_data->name, "cosh") == 0) return coshl(eval_expr(ctx, st, *list_first(ast_node_ptr, func_data->args)));
+    else if (strcmp(func_data->name, "sinh") == 0) return sinhl(eval_expr(ctx, st, *list_first(ast_node_ptr, func_data->args)));
+    else if (strcmp(func_data->name, "tanh") == 0) return tanhl(eval_expr(ctx, st, *list_first(ast_node_ptr, func_data->args)));
+    else if (strcmp(func_data->name, "log") == 0) return logl(eval_expr(ctx, st, *list_first(ast_node_ptr, func_data->args)));
+    else if (strcmp(func_data->name, "log10") == 0) return log10l(eval_expr(ctx, st, *list_first(ast_node_ptr, func_data->args)));
+    else if (strcmp(func_data->name, "ceil") == 0) return ceill(eval_expr(ctx, st, *list_first(ast_node_ptr, func_data->args)));
+    else if (strcmp(func_data->name, "fabs") == 0) return fabsl(eval_expr(ctx, st, *list_first(ast_node_ptr, func_data->args)));
+    else if (strcmp(func_data->name, "floor") == 0) return floorl(eval_expr(ctx, st, *list_first(ast_node_ptr, func_data->args)));
+    else if (strcmp(func_data->name, "sqrt") == 0) return sqrtl(eval_expr(ctx, st, *list_first(ast_node_ptr, func_data->args)));
     else return eval_emit_error(ctx, "Unknown function %s.", func_data->name);
 }
 
@@ -182,7 +199,12 @@ void evalprintf(ast_node *tree) {
     case EXPR_FUNC: {
         expr_func_data *func_data = (expr_func_data*)tree->data;
         printf("%s(", func_data->name);
-        evalprintf(func_data->rhs);
+        for (ast_node_ptr *node = list_first(ast_node_ptr, func_data->args);
+             node;
+             node = list_next(ast_node_ptr, node)
+             ) {
+            evalprintf(*node);
+        }
         printf(")");
         break;
     }

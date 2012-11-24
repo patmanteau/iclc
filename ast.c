@@ -33,8 +33,17 @@ void dump_tree(ast_node *tree, int depth) {
     }
     case EXPR_FUNC: {
         expr_func_data *func_data = (expr_func_data*)tree->data;
-        printf("%s:\n", func_data->name);
-        dump_tree(func_data->rhs, depth+1);
+        printf("%s(", func_data->name);
+        for (ast_node_ptr *arg = list_first(ast_node_ptr, func_data->args);
+             arg;
+             arg = list_next(ast_node_ptr, arg)
+             ) {
+            dump_tree(*arg, depth+1);
+            if (arg != list_last(ast_node_ptr, func_data->args)) {
+                printf(", ");
+            }
+        }
+        printf(")\n");
         break;
     }        
     case EXPR_BINOP: {
@@ -65,8 +74,11 @@ void dump_tree(ast_node *tree, int depth) {
 void ast_free_node(ast_node *node) {
     if (node != NULL) {
         switch (node->type) {
-            // Funktionen: rhs-Subtree rekursiv freigeben
-        case EXPR_FUNC: ast_free_node(((expr_func_data*)node->data)->rhs); free(((expr_func_data*)node->data)->name); break;
+            // Funktionen: args-Subtrees rekursiv freigeben
+        case EXPR_FUNC: {
+            list_finalize(((expr_func_data*)node->data)->args);
+            free(((expr_func_data*)node->data)->name); break;
+        }
             // Binäre Ausdrücke: lhs- und rhs-Subtree rekursiv freigeben
         case EXPR_BINOP: ast_free_node(((expr_binop_data*)node->data)->lhs); ast_free_node(((expr_binop_data*)node->data)->rhs); break;
             // Unäre Ausdrücke: rhs-Subtree rekursiv freigeben
@@ -87,3 +99,6 @@ void ast_free_node(ast_node *node) {
     }
 }
 
+void ast_free_node_ptr(void *data) {
+    ast_free_node(*((ast_node_ptr*)data));
+}

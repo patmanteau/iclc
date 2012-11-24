@@ -171,6 +171,33 @@ ast_node *parse_unop_expr(parse_context *ctx) {
     return node;    
 }
 
+ast_node *parse_func_expr(parse_context *ctx, char *name) {
+    ast_node *node = malloc(sizeof(ast_node));
+    node->type = EXPR_FUNC;
+    expr_func_data *data = malloc(sizeof(expr_func_data));
+    data->name = name;
+    data->args = (list_t(ast_node_ptr)) EMPTY_LIST(ast_node_ptr);
+
+    if (ctx->token != TOK_PAREN_OPEN) return parse_emit_error(ctx, lex_get_offset(ctx->lex_ctx)+1, "( expected.");
+    // '(' verbrauchen
+    parse_get_next_token(ctx);
+
+    // Argumentliste aufbauen
+    while (ctx->token != TOK_PAREN_CLOSE) {
+        ast_node *arg = parse_expr(ctx);
+        if (!arg) return NULL;
+        list_append(ast_node_ptr, data->args, arg);
+        if (ctx->token != TOK_COMMA && ctx->token != TOK_PAREN_CLOSE) return parse_emit_error(ctx, lex_get_offset(ctx->lex_ctx)+1, ", or ) expected.");
+        if (ctx->token == TOK_COMMA) parse_get_next_token(ctx);
+    }
+
+    // ')' verbrauchen
+    parse_get_next_token(ctx);
+
+    node->data = data;
+    return node;
+}
+
 ast_node *parse_ident_expr(parse_context *ctx) {
     // Namen merken
     char *name = stringcopy(ctx->lex_ctx->token_string);
@@ -189,16 +216,7 @@ ast_node *parse_ident_expr(parse_context *ctx) {
         node->data = data;
         return node;
     } else { // also muss es eine Funktion sein
-        ast_node *node = malloc(sizeof(ast_node));
-        node->type = EXPR_FUNC;
-        expr_func_data *data = malloc(sizeof(expr_func_data));
-        data->name = name;
-
-        data->rhs = parse_primary(ctx);
-        // Fehler weiterreichen
-        if (!data->rhs) return NULL;
-        node->data = data;
-        return node;
+        return parse_func_expr(ctx, name);
     }
 }
 

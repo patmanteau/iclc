@@ -1,80 +1,83 @@
 /**
- * iclc - Interactive Command Line Calculator
  *
- * arglist.c
+ * generic_list.c
  *
- * iclc is a simple, interactive, command line calculator. It
- * employs and thereby demonstrates basic parsing technique. 
+ * A generic linked list. Idea taken from http://www.cplusplus.com/forum/general/15251/.
  *
- * Beware, it leaks like a strainer and probably has more bugs
- * than Starship Troopers.
- *
- *
- * Copyright 2012 Patrick Haas (@p7haas)
- *
- * Released under the MIT and GPL licenses.
- *
- * ------------------------------------------------
- *  author:  Patrick Haas
- *  url:     https://github.com/p7haas/iclc
- *  source:  https://github.com/p7haas/iclc
  */
 
-#include "arglist.h"
+#include "generic_list.h"
 #include "snippets.h"
 
-arglist *arglist_create() {
-    arglist *l = safe_malloc(sizeof(arglist));
-    l->first = NULL;
-
-    return l;
+void *el_to_data_ptr(any_el_t *el) {
+    void *ptr = el;
+    return ptr+2*sizeof(void*);
 }
 
-void arglist_add(arglist *l, const char *name, struct _AST_NODE *val) {
-    arglist_el **el = &l->first;
-    while ((*el) != NULL) {
-        el = &((*el)->next);
+void *data_to_el_ptr(void *data) {
+    return data-2*sizeof(void*);
+}
+
+unsigned long generic_list_append(any_list_t *list, void *data, unsigned int size, bool copy) {
+    any_el_t *new_el = safe_malloc(sizeof(any_el_t)+size);
+    new_el->next = NULL;
+
+    void *dataptr = el_to_data_ptr(new_el);
+    if (copy) {
+        list->copy_fun(dataptr, data);
+    } else {
+        memcpy(dataptr, data, size);
     }
-    *el = safe_malloc(sizeof(arglist_el));
-    (*el)->name = stringcopy(name);
-    (*el)->val = val;
-    (*el)->next = NULL;
+
+    if (list->size == 0) {
+        list->first = new_el;
+        new_el->prev = NULL;
+    } else {
+        list->last->next = new_el;
+        new_el->prev = list->last;
+    }
+    list->last = new_el;
+    list->size++;
+    return list->size;
 }
+
+void* generic_list_first(any_list_t *list) {
+    any_el_t *first_el = list->first;
+    void *data = NULL;
+    if (list->size > 0) {
+        data = el_to_data_ptr(first_el);
+    }
+    return data;
+}
+
+void* generic_list_last(any_list_t *list) {
+    any_el_t *last_el = list->last;
+    void *data = NULL;
+    if (list->size > 0) {
+        data = el_to_data_ptr(last_el);
+    }
+    return data;
+}
+
+void* generic_list_next(void *data) {
+    any_el_t *this_el = data_to_el_ptr(data);
+    any_el_t *next_el = this_el->next;
+    void *next_data = NULL;
+    if (next_el) {
+        next_data = el_to_data_ptr(next_el);
+    }
+    return next_data;
+}
+
+void generic_list_finalize(any_list_t *list) {
+    any_el_t *el = list->first;
     
-int arglist_get_size(arglist *l) {
-    arglist_el *el = l->first;
-    int c = 0;
-    while (el != NULL) {
-        c++;
+    while (el) {
+        any_el_t *next_el = el->next;
+        if (list->free_fun != NULL) {
+            list->free_fun(el_to_data_ptr(el));
+	}
+        free(el);
+        el = next_el;
     }
-    return c;
 }
-
-const arglist_el *arglist_get_index(arglist *l, int idx) {
-    arglist_el *el = l->first;
-    for (int i=0; i<idx; i++) {
-        if (el==NULL) return NULL;
-        el = el->next;
-    }
-    return el;
-}
-
-const arglist_el *arglist_get_name(arglist *l, const char *name) {
-    for(arglist_el *el = l->first; el!=NULL; el=el->next) { 
-        if (strcmp(name, el->name)==0) return el;
-    }
-    return NULL;
-}
-
-void arglist_free(arglist *l) {
-    arglist_el *el = l->first;
-    while (el != NULL) {
-        arglist_el *free_el = el;
-        el = el->next;
-        free(free_el->name);
-        free(free_el->val);
-        free(free_el);
-    }
-    free(l);
-}
-

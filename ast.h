@@ -24,7 +24,7 @@
 #define _AST_H_
 
 #include "main.h"
-#include "arglist.h"
+#include "generic_list.h"
 
 // Unäre Operatoren
 enum unop_t {
@@ -60,6 +60,14 @@ struct _AST_NODE {
     void *data;
 };
 
+typedef struct _AST_NODE ast_node;
+typedef ast_node* ast_node_ptr;
+
+void ast_free_node_ptr(void *data);
+
+DECLARE_LIST_T(ast_node_ptr, NULL, NULL, &ast_free_node_ptr)
+DECLARE_LIST_T(char_ptr, NULL, NULL, NULL)
+
 // Datenstruktur für numerische Literalausdrücke
 struct _EXPR_NUM_DATA {
     LONG_DOUBLE val;
@@ -81,13 +89,13 @@ struct _EXPR_BINOP_DATA {
 // Datenstruktur für Funktionsaufrufe
 struct _EXPR_FUNC_DATA {
     char *name;
-    arglist *args;
+    list_t(ast_node_ptr) args;
 };
 
 // Datenstruktur für Funktionsdefinitionen
 struct _FUNC_DEF_DATA {
     char *name;
-    arglist *args;    
+    list_t(char_ptr) args;
     struct _AST_NODE *rhs;
 };
 
@@ -102,7 +110,6 @@ struct _EXPR_NOP_DATA {
 };
 
 
-typedef struct _AST_NODE ast_node;
 typedef struct _EXPR_NUM_DATA expr_num_data;
 typedef struct _EXPR_UNOP_DATA expr_unop_data;
 typedef struct _EXPR_BINOP_DATA expr_binop_data;

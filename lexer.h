@@ -31,6 +31,7 @@ enum lex_token_t {
     TOK_CHAR = -3,
     TOK_OPER = -4,
     TOK_IDENT = -5,
+    TOK_COMMA = -6,
 
     TOK_PAREN_OPEN = -101,
     TOK_PAREN_CLOSE = -102,
