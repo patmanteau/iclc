@@ -2,7 +2,7 @@ iclc - Interactive Command Line Calculator
 ==========================================
 
 iclc is a simple, interactive, command line calculator. It employs basic parsing 
-technique. Beware, though: It's not bugfree and it leaks memory all over the plane.
+technique. Beware, though: It has bugs and it leaks. Bad dog.
 
 iclc is written in plain C99 and should compile on most systems with only minor
 adjustments. C99 support is required, though. 
@@ -16,7 +16,7 @@ Manual
 
 iclc understands basic arithmetic on (signed) floating-point numbers. Supported operators are:
 
-+, -, *, /, %, ^, = (as assignment to a variable)
++, -, *, /, %, ^, = (i.e. assignment)
 
 ( and ) are fine, too. Sometimes, they even behave as expected!
 
